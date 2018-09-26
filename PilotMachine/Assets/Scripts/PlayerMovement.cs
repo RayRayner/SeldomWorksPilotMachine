@@ -7,6 +7,8 @@ public class PlayerMovement : MonoBehaviour {
     private Rigidbody rb;
 
     public int speed;
+    public int tempSpeedMultiplier;
+    public int rotationSpeed;
 
     public Transform[] interactableObjects;
 
@@ -18,20 +20,21 @@ public class PlayerMovement : MonoBehaviour {
 
     public GameObject structure;
 
-    public Vector3 leftAngle = new Vector3(0, 0, 6);
-    public Vector3 rightAngle = new Vector3(0,0,-6);
+    
 
 
     // Use this for initialization
     void Awake () {
         rb = GetComponent<Rigidbody>();
         PlayerMove = true;
+        //rb.useGravity = true;
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
         if (PlayerMove)
         {
+            
                 float moveHorizontal = Input.GetAxis("Horizontal");
                 float moveVertical = Input.GetAxis("Vertical");
                 if (Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Horizontal") < 0 || Input.GetAxisRaw("Vertical") > 0 || Input.GetAxisRaw("Vertical") < 0)
@@ -112,37 +115,36 @@ public class PlayerMovement : MonoBehaviour {
         {
             this.transform.parent = structure.transform;
             PlayerMove = false;
-            if (Input.GetKey(KeyCode.W))
-            {
-                structure.transform.Translate(0, 0.5f, 0);
-            }
-            if (Input.GetKey(KeyCode.S))
-            {
-                structure.transform.Translate(0, -0.5f, 0);
-            }
+            //rb.useGravity = false;
+            //if (Input.GetKey(KeyCode.W))
+            //{
+            //    structure.transform.Translate(0, 0.5f, 0);
+            //}
+            //if (Input.GetKey(KeyCode.S))
+            //{
+            //    structure.transform.Translate(0, -0.5f, 0);
+            //}
             if (Input.GetKey(KeyCode.D))
-            {
-                structure.transform.Translate(0.5f, 0, 0);
-                //if (structure.transform.eulerAngles.z >= -7)
-                //{
-                structure.transform.eulerAngles = new Vector3(0, 0, Mathf.LerpAngle(structure.transform.rotation.z, -6, 1f));
-                //structure.transform.Rotate = new Vector3.Lerp(0, 0, -6);
-                //}
-
+            {                 
+                structure.transform.rotation = Quaternion.Lerp(Quaternion.Euler(0,0,-10), structure.transform.rotation, Time.deltaTime * rotationSpeed);              
             }
             if (Input.GetKey(KeyCode.A))
             {
-                structure.transform.Translate(-0.5f, 0, 0);
-                //if (structure.transform.eulerAngles.z <= 7)
-                //{
-                structure.transform.eulerAngles = (new Vector3(0, 0, 6));
-                //}
+                structure.transform.rotation = Quaternion.Lerp(Quaternion.Euler(0, 0, 10), structure.transform.rotation, Time.deltaTime * rotationSpeed);
 
             }
 
+            float moveHorizontal2 = Input.GetAxis("Horizontal");
+            
+            float moveVertical2 = Input.GetAxis("Vertical");
+
+            Vector3 movement2 = new Vector3(moveHorizontal2, moveVertical2,0.0f );
+
+            structure.GetComponent<Rigidbody>().AddForce(movement2 * tempSpeedMultiplier);
+
             if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.D))
             {
-                structure.transform.eulerAngles = new Vector3(0, 0, 0);
+                structure.transform.rotation = Quaternion.Lerp(Quaternion.Euler(0, 0, 0), structure.transform.rotation, Time.deltaTime * rotationSpeed);
             }
 
             if (Input.GetKeyDown(KeyCode.E))
